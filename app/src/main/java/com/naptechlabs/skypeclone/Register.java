@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +17,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
@@ -124,6 +122,17 @@ public class Register extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            startActivity(new Intent(this, ContexActivity.class));
+            finish();
+        }
+        super.onStart();
+    }
+
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -146,6 +155,6 @@ public class Register extends AppCompatActivity {
     }
 
     public void sendUsertoManActivity() {
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, ContexActivity.class));
     }
 }
