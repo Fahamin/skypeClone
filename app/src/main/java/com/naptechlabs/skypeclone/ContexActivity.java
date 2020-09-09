@@ -35,7 +35,7 @@ public class ContexActivity extends AppCompatActivity {
         findPeopelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(ContexActivity.this, Setting.class));
             }
         });
 
