@@ -79,7 +79,8 @@ public class Setting extends AppCompatActivity {
 
 
         });
-        retriveUserInfo();
+        //here is data confirm to after to retirve  or app carsh
+
     }
 
     private void saveUserData() {
@@ -140,6 +141,7 @@ public class Setting extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
 
                                 if (task.isSuccessful()) {
+                                    retriveUserInfo();
                                     startActivity(new Intent(Setting.this, ContexActivity.class));
                                     progressDialog.dismiss();
 

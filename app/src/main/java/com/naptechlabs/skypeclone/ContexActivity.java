@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ContexActivity extends AppCompatActivity {
     BottomNavigationView navView;
-
     RecyclerView contactsList;
     ImageView findPeopelBtn;
 
@@ -35,7 +34,7 @@ public class ContexActivity extends AppCompatActivity {
         findPeopelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ContexActivity.this, Setting.class));
+                startActivity(new Intent(ContexActivity.this, FindPeople.class));
             }
         });
 

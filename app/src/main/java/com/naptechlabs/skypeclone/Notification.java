@@ -12,10 +12,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class Notification extends AppCompatActivity {
 
     RecyclerView notificationLIST;
-
+    DatabaseReference firedReqestRef, contactsRef,userRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,7 +27,9 @@ public class Notification extends AppCompatActivity {
 
         notificationLIST = findViewById(R.id.notification_List);
         notificationLIST.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
+        firedReqestRef = FirebaseDatabase.getInstance().getReference().child("Friend Request");
+        contactsRef = FirebaseDatabase.getInstance().getReference().child("contacts");
+        userRef = FirebaseDatabase.getInstance().getReference().child("User");
     }
 
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
@@ -43,5 +49,13 @@ public class Notification extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    FirebaseRecyclerOptions  options = new FirebaseRecyclerOptions.Builder<Contacts>()
+                .setQuery(firedReqestRef, Contacts.class).build();
+
     }
 }
