@@ -38,13 +38,19 @@ public class Setting extends AppCompatActivity {
     Button saveBtn;
     EditText userEDT, bioEDT;
     private static int galleryRequestCode = 9;
-    private Uri imageUri;
+    private Uri imageUri = null;
     ProgressDialog progressDialog;
     private StorageReference userProfileImageRef;
     private String dowwnloadurl;
     private DatabaseReference userRef;
 
     FirebaseUser userID;
+
+
+    String imagedb = null;
+    String biodb = null;
+    String namedb = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +77,29 @@ public class Setting extends AppCompatActivity {
                 startActivityForResult(gallerInten, galleryRequestCode);
             }
         });
+
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveUserData();
+                startActivity(new Intent(Setting.this, ContexActivity.class));
             }
 
 
         });
         //here is data confirm to after to retirve  or app carsh
+        String ss = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        if (saveUserData()) {
+            retriveUserInfo();
+
+
+
+        }
 
     }
 
-    private void saveUserData() {
+    private boolean saveUserData() {
         final String getuserName = userEDT.getText().toString();
         final String getuserBio = bioEDT.getText().toString();
         if (imageUri == null) {
@@ -91,10 +107,10 @@ public class Setting extends AppCompatActivity {
             userRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).hasChild("image")) {
+                    if (!dataSnapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).hasChild("image")) {
                         savedataWithoutImage();
                     } else
-                        Toast.makeText(Setting.this, "PPlease selet image", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Setting.this, "Please select image", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -154,6 +170,7 @@ public class Setting extends AppCompatActivity {
             });
         }
 
+        return true;
     }
 
     public void retriveUserInfo() {
@@ -161,13 +178,35 @@ public class Setting extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String imagedb = dataSnapshot.child("image").getValue().toString();
-                        String biodb = dataSnapshot.child("bio").getValue().toString();
-                        String namedb = dataSnapshot.child("name").getValue().toString();
-                        userEDT.setText(namedb);
-                        bioEDT.setText(biodb);
-                        Picasso.get().load(imagedb).placeholder(R.drawable.profile_image
-                        ).into(profile_imageView);
+
+                        if (dataSnapshot.hasChild("image")) {
+                             imagedb = dataSnapshot.child("image").getValue().toString();
+
+                        }
+                        if (dataSnapshot.hasChild("bio")) {
+                            biodb = dataSnapshot.child("bio").getValue().toString();
+
+
+                        }
+                        if (dataSnapshot.hasChild("name")) {
+                            namedb = dataSnapshot.child("name").getValue().toString();
+
+                        }
+
+                        if (imagedb != null) {
+                            Picasso.get().load(imagedb).placeholder(R.drawable.profile_image
+                            ).into(profile_imageView);
+                        }
+                        if (biodb != null) {
+                            bioEDT.setText(biodb);
+
+                        }
+                        if (namedb != null) {
+                            userEDT.setText(namedb);
+
+                        }
+
+
                     }
 
                     @Override

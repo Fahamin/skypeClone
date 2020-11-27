@@ -56,8 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
         senderUserID = auth.getCurrentUser().getUid();
         firedReqestRef = FirebaseDatabase.getInstance().getReference().child("Friend Request");
         contactsRef = FirebaseDatabase.getInstance().getReference().child("contacts");
-
-
+        
         manageClick();
 
     }
