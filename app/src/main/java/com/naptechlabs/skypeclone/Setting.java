@@ -94,7 +94,6 @@ public class Setting extends AppCompatActivity {
             retriveUserInfo();
 
 
-
         }
 
     }
@@ -110,7 +109,10 @@ public class Setting extends AppCompatActivity {
                     if (!dataSnapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).hasChild("image")) {
                         savedataWithoutImage();
                     } else
-                        Toast.makeText(Setting.this, "Please select image", Toast.LENGTH_SHORT).show();
+                    {
+
+                    }
+                       // Toast.makeText(Setting.this, "Please select image", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override

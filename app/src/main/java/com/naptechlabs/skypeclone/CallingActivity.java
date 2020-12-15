@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.telecom.Call;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +32,8 @@ public class CallingActivity extends AppCompatActivity {
     DatabaseReference userRef;
     String callinID = "", ringinID = "";
 
+    MediaPlayer mediaPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,11 +48,34 @@ public class CallingActivity extends AppCompatActivity {
         reciverUserID = getIntent().getStringExtra("visit_user_id").toString();
         userRef = FirebaseDatabase.getInstance().getReference().child("User");
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.tone);
         canclecallBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mediaPlayer.stop();
                 checker = "clicked";
                 cancleCallingUser();
+            }
+        });
+
+        aceptCallBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediaPlayer.stop();
+                final HashMap<String, Object> callingPicckupMap = new HashMap<>();
+                callingPicckupMap.put("picked", "picked");
+                userRef.child(senderUserID).child("Ringing")
+                        .updateChildren(callingPicckupMap)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                if (task.isSuccessful()) {
+                                    mediaPlayer.stop();
+                                    startActivity(new Intent(CallingActivity.this, VideoChatActivity.class));
+                                }
+                            }
+                        });
             }
         });
         getReciverUserInfo();
@@ -72,7 +99,7 @@ public class CallingActivity extends AppCompatActivity {
                                         .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        startActivity(new Intent(CallingActivity.this, Registration.class));
+                                        startActivity(new Intent(CallingActivity.this, ContexActivity.class));
                                         finish();
                                     }
                                 });
@@ -117,7 +144,7 @@ public class CallingActivity extends AppCompatActivity {
 
                         }
                     });
-                } else startActivity(new Intent(CallingActivity.this, Registration.class));
+                } else startActivity(new Intent(CallingActivity.this, ContexActivity.class));
                 finish();
 
 
@@ -162,13 +189,15 @@ public class CallingActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        mediaPlayer.start();
         userRef.child(reciverUserID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 if (!checker.equals("clicked") && !dataSnapshot.hasChild("Calling") && !dataSnapshot.hasChild("Ringing")) {
-                    final HashMap<String, Object> callinInfo = new HashMap<>();
 
+
+                    final HashMap<String, Object> callinInfo = new HashMap<>();
                     callinInfo.put("calling", reciverUserID);
 
                     userRef.child(senderUserID)
@@ -206,6 +235,11 @@ public class CallingActivity extends AppCompatActivity {
                 if (dataSnapshot.child(senderUserID).hasChild("Ringing")
                         && !dataSnapshot.child(senderUserID).hasChild("Calling")) {
                     aceptCallBtn.setVisibility(View.VISIBLE);
+                }
+                if (dataSnapshot.child(reciverUserID).child("Ringing").hasChild("picked")) {
+                   mediaPlayer.stop();
+                    startActivity(new Intent(CallingActivity.this, VideoChatActivity.class));
+
                 }
             }
 

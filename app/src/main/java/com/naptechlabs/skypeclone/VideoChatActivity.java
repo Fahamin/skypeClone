@@ -2,16 +2,21 @@ package com.naptechlabs.skypeclone;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,9 +38,9 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class VideoChatActivity extends AppCompatActivity implements Session.SessionListener,
         PublisherKit.PublisherListener {
 
-    private static String API_KEY = "";
-    private static String SESSION_ID = "";
-    private static String TOKEN = "";
+    private static String API_KEY = "47008124";
+    private static String SESSION_ID = "2_MX40NzAwODEyNH5-MTYwNjU0MDE0MTYyM340cUEzYVhWSVJhWWhMRis2N2FpRzJ5Ryt-fg";
+    private static String TOKEN = "T1==cGFydG5lcl9pZD00NzAwODEyNCZzaWc9Zjc3NDI5Yjc2NTM5NDZlOGQ3NWJkNTJhZjEyZDJmOWI5Yjg3Yzc3NDpzZXNzaW9uX2lkPTJfTVg0ME56QXdPREV5Tkg1LU1UWXdOalUwTURFME1UWXlNMzQwY1VFellWaFdTVkpoV1doTVJpczJOMkZwUnpKNVJ5dC1mZyZjcmVhdGVfdGltZT0xNjA2NTQwMjE4Jm5vbmNlPTAuMzk0OTAzNDgwOTYxOTA4OTcmcm9sZT1wdWJsaXNoZXImZXhwaXJlX3RpbWU9MTYwNzE0NTAxNiZpbml0aWFsX2xheW91dF9jbGFzc19saXN0PQ==";
     private static final String Log_tag = VideoChatActivity.class.getName();
 
     private static final int RC_VIDEO_APP_PREM = 124;
@@ -58,6 +63,9 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         userRef = FirebaseDatabase.getInstance().getReference().child("User");
         closeVideoChatBtn = findViewById(R.id.close_video_chat_btn);
+        haveStoragePermission();
+        requestPermission();
+
         closeVideoChatBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +81,7 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
                             if (subscriber != null) {
                                 subscriber.destroy();
                             }
-                            startActivity(new Intent(VideoChatActivity.this, Registration.class));
+                            startActivity(new Intent(VideoChatActivity.this, ContexActivity.class));
                             finish();
                         }
                         if (dataSnapshot.child(userID).hasChild("Calling")) {
@@ -84,7 +92,7 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
                             if (subscriber != null) {
                                 subscriber.destroy();
                             }
-                            startActivity(new Intent(VideoChatActivity.this, Registration.class));
+                            startActivity(new Intent(VideoChatActivity.this, ContexActivity.class));
                             finish();
                         } else {
                             if (publisher != null) {
@@ -93,7 +101,7 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
                             if (subscriber != null) {
                                 subscriber.destroy();
                             }
-                            startActivity(new Intent(VideoChatActivity.this, Registration.class));
+                            startActivity(new Intent(VideoChatActivity.this, ContexActivity.class));
                             finish();
 
                         }
@@ -114,6 +122,37 @@ public class VideoChatActivity extends AppCompatActivity implements Session.Sess
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
+    public  boolean haveStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ActivityCompat.checkSelfPermission(VideoChatActivity.this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED  && ActivityCompat.checkSelfPermission(VideoChatActivity.this,
+                    Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED ) {
+                //  Log.e("Permission error", "You have permission");
+                publisherViewContoraler = findViewById(R.id.publisher_container);
+                subcribeViewContainer = findViewById(R.id.subscriber_container);
+                //inisialze and conet ot her  sessoin
+
+
+                session = new Session.Builder(this, API_KEY, SESSION_ID).build();
+                session.setSessionListener(VideoChatActivity.this);
+                session.connect(TOKEN);
+
+                return true;
+            } else {
+
+                //  Log.e("Permission error", "You have asked for permission");
+                ActivityCompat.requestPermissions((Activity) VideoChatActivity.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO}, RC_VIDEO_APP_PREM);
+                Toast.makeText(VideoChatActivity.this, "Need to Permission for Download", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } else { //you dont need to worry about these stuff below api level 23
+            //  Log.e("Permission error", "You already have the permission");
+            return true;
+        }
     }
 
     @AfterPermissionGranted(RC_VIDEO_APP_PREM)
